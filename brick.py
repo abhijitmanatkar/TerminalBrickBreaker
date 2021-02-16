@@ -27,19 +27,24 @@ class Brick():
         if type(obj).__name__ == 'Ball':
             if obj.pos[1] != self.pos[1]:
                 return False
-            if obj.vel[0] >= 0:
+            if obj.vel[0] > 0:
                 if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1 + obj.vel[0]:
                     return True
                 return False
-            else:
+            elif obj.vel[0] < 0:
                 if self.pos[0] + obj.vel[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
+                    return True
+                return False
+            else:
+                if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
                     return True
                 return False
         return False
 
     def take_damage(self):
         # Called when ball collides with brick
-        self.strength -= 1
+        if self.strength < 4:
+            self.strength -= 1
         if self.strength == 0:
             self.destroyed = True
             return

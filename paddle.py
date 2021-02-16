@@ -1,4 +1,4 @@
-from globals import WIDTH, BALL_MAX_X_SPEED
+from globals import WIDTH, BALL_MAX_X_SPEED, MAX_PADDLE_SIZE, MIN_PADDLE_SIZE
 from colorama import Back
 
 
@@ -7,7 +7,7 @@ class Paddle():
 
     def __init__(self, pos):
         self.length = 7
-        self.img = [[(Back.LIGHTBLUE_EX + ' ' + Back.RESET)
+        self.img = [[(Back.BLUE + ' ' + Back.RESET)
                      for _ in range(self.length)]]
         self.pos = pos
         self.speed = 2
@@ -35,4 +35,20 @@ class Paddle():
                 if self.pos[0] + obj.vel[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
                     return True
                 return False
+        elif type(obj).__base__.__name__ == 'PowerUp':
+            if obj.pos[1] != self.pos[1]:
+                return False
+            if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
+                return True
+            return False
         return False
+
+    def expand(self):
+        self.length = min(self.length + 5, MAX_PADDLE_SIZE)
+        self.img = [[(Back.BLUE + ' ' + Back.RESET)
+                     for _ in range(self.length)]]
+
+    def shrink(self):
+        self.length = max(self.length - 2, MIN_PADDLE_SIZE)
+        self.img = [[(Back.BLUE + ' ' + Back.RESET)
+                     for _ in range(self.length)]]

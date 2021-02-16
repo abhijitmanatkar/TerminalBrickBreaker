@@ -37,8 +37,10 @@ class Ball():
 
     def bounce_on(self, obj):
         # Change direction on collision with paddle/brick
-        self.unmove()
+
         if type(obj).__name__ == 'Paddle':
+            # Only top/bottom collision
+            self.unmove()
             center = obj.pos[0] + obj.length//2
             right_center = center + obj.length//4
             left_center = obj.length//4
@@ -46,9 +48,19 @@ class Ball():
                 self.vel[0] = max(self.vel[0] - 2, -2)
             elif left_center <= self.pos[0] < center:
                 self.vel[0] = max(self.vel[0] - 1, -2)
-            elif center <= self.pos[0] < right_center:
+            elif center < self.pos[0] < right_center:
                 self.vel[0] = min(self.vel[0] + 1, 2)
-            else:
+            elif right_center <= self.pos[0]:
                 self.vel[0] = min(self.vel[0] + 2, 2)
-        self.vel[1] *= -1
-        self.move()
+            self.vel[1] *= -1
+            self.move()
+
+        elif type(obj).__name__ == 'Brick':
+            self.unmove()
+            # Sideways collision
+            if self.pos[0] < obj.pos[0] or self.pos[0] > obj.pos[0] + obj.length - 1:
+                self.vel[0] *= -1
+            # Top/Bottom collision
+            else:
+                self.vel[1] *= -1
+            self.move()

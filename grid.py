@@ -1,4 +1,4 @@
-from globals import *
+from globals import HEIGHT, WIDTH
 from colorama import Back
 
 
