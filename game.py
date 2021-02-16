@@ -46,6 +46,8 @@ def game_loop():
         for ball in balls:
             if not ball.stuck:
                 ball.move()
+        balls = [ball for ball in balls if not ball.destroyed]
+
         for powerup in falling_powerups:
             powerup.move()
         falling_powerups = [

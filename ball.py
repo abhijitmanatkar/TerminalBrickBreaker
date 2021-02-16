@@ -12,6 +12,7 @@ class Ball():
         self.vel = vel
         self.stuck = True
         self.last_move_time = time.time()
+        self.destroyed = False
 
     def drag(self, delta_x):
         # Used when ball is stuck
@@ -24,8 +25,10 @@ class Ball():
                 self.vel[0] *= -1
             self.pos[0] += self.vel[0]
 
-            if (self.pos[1] + self.vel[1] >= HEIGHT - 1) or (self.pos[1] + self.vel[1] < 1):
+            if (self.pos[1] + self.vel[1] < 1):
                 self.vel[1] *= -1
+            if (self.pos[1] + self.vel[1] >= HEIGHT - 1):
+                self.destroyed = True
             self.pos[1] += self.vel[1]
 
             self.last_move_time = time.time()
