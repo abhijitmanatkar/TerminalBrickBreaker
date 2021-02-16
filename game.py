@@ -1,7 +1,7 @@
 import os
 from input import Get, input_to
-from paddle import Paddle
 from ball import Ball
+from paddle import Paddle
 from grid import Grid
 from globals import *
 from utils import *
@@ -12,18 +12,16 @@ getinp = Get()
 def game_loop():
     clear()
     grid = Grid()
-    paddle = Paddle([WIDTH//2, 3 * HEIGHT//4])
+    paddle = Paddle([WIDTH//2, HEIGHT - 4])
     ball = Ball([paddle.pos[0] + paddle.length//2, paddle.pos[1] - 1])
-
-    grid.draw(paddle)
-    print(grid)
+    bricks = gen_bricks()
 
     while True:
         # Temporary grid for comparison
         tempGrid = Grid()
 
         # Input
-        inp = input_to(getinp, 0.02)
+        inp = input_to(getinp, 0.025)
         if inp == 'q':
             clear()
             quit()
@@ -40,17 +38,19 @@ def game_loop():
 
         # Check for collisions
         # Collision with paddle
-        if (ball.pos[1] == paddle.pos[1]) and (paddle.pos[0] <= ball.pos[0] < paddle.pos[0] + paddle.length):
-            ball.unmove()
-            paddle_center = paddle.pos[0] + paddle.length//2
-            if ball.pos[0] > paddle_center:
-                ball.vel[0] = min(ball.vel[0] + 1, 2)
-            elif ball.pos[0] < paddle_center:
-                ball.vel[0] = max(ball.vel[0] - 1, -2)
-            ball.vel[1] *= -1
-            ball.move()
+        if paddle.collides_with(ball):
+            ball.bounce_on(paddle)
+
+        # Collision with bricks
+        for i in range(len(bricks)):
+            if bricks[i].collides_with(ball):
+                ball.bounce_on(bricks[i])
+                bricks[i].take_damage()
+        bricks = [brick for brick in bricks if not brick.destroyed]
 
         # Drawing
+        for brick in bricks:
+            tempGrid.draw(brick)
         tempGrid.draw(paddle)
         tempGrid.draw(ball)
 

@@ -1,4 +1,5 @@
 from globals import *
+from colorama import Back
 
 
 class Grid():
@@ -9,11 +10,11 @@ class Grid():
         self.height = height
         self.width = width
         self.canvas = [[' ' for _ in range(width)] for __ in range(height)]
-        self.canvas[0] = ['#' for _ in range(width)]
+        self.canvas[0] = [Back.WHITE + ' ' + Back.RESET for _ in range(width)]
         self.canvas[height - 1] = self.canvas[0]
         for i in range(len(self.canvas)):
-            self.canvas[i][0] = '#'
-            self.canvas[i][width - 1] = '#'
+            self.canvas[i][0] = Back.WHITE + '  ' + Back.RESET
+            self.canvas[i][width - 1] = Back.WHITE + '  ' + Back.RESET
 
     def __str__(self):
         # Print grid
@@ -31,7 +32,7 @@ class Grid():
             return False
 
     def draw(self, obj):
-        # Draw on object onto the grid
+        # Draw an object onto the grid
         xBase, yBase = obj.pos
         for y in range(len(obj.img)):
             for x in range(len(obj.img[y])):
