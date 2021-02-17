@@ -4,17 +4,18 @@ from input import Get, input_to
 from ball import Ball
 from paddle import Paddle
 from grid import Grid
-from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls
+from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab
+import globals
 from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY
 from utils import clear, gen_bricks
 
 getinp = Get()
 
-powerup_classes = [ExpandPaddle, ShrinkPaddle, MultiBalls]
+powerup_classes = [ExpandPaddle, ShrinkPaddle,
+                   MultiBalls, FastBall, ThruBall, PaddleGrab]
 
 
 def game_loop():
-    debug_string = ""
     clear()
     grid = Grid()
     paddle = Paddle([WIDTH//2, HEIGHT - 4])
@@ -41,6 +42,9 @@ def game_loop():
         elif inp == 'r':
             for ball in balls:
                 ball.stuck = False
+        elif inp == 'p':
+            globals.ball_move_interval = 0.07
+            debug_string = "Fast"
 
         # Updates
         for ball in balls:
@@ -57,14 +61,20 @@ def game_loop():
         # Collision of balls with paddle
         for ball in balls:
             if paddle.collides_with(ball):
-                ball.bounce_on(paddle)
+                if paddle.grab:
+                    ball.stick_to(paddle)
+                else:
+                    ball.bounce_on(paddle)
 
         # Collision of ball with bricks
         for ball in balls:
             for i in range(len(bricks)):
                 if bricks[i].collides_with(ball):
-                    ball.bounce_on(bricks[i])
-                    bricks[i].take_damage()
+                    if not ball.go_through_bricks:
+                        ball.bounce_on(bricks[i])
+                        bricks[i].take_damage()
+                    else:
+                        bricks[i].destroyed = True
                     if bricks[i].destroyed:
                         # Generate powerup if destroyed
                         if random.random() < POWERUP_PROBABILITY:

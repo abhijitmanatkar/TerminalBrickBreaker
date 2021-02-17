@@ -11,6 +11,7 @@ class Paddle():
                      for _ in range(self.length)]]
         self.pos = pos
         self.speed = 2
+        self.grab = False
 
     def move(self, dir):
         old_x = self.pos[0]

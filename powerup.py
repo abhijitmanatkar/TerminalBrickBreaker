@@ -1,4 +1,5 @@
-from globals import powerup_move_interval, powerup_activate_time, HEIGHT
+import globals
+from globals import powerup_move_interval, HEIGHT
 import time
 from colorama import Fore
 
@@ -28,11 +29,8 @@ class ExpandPaddle(PowerUp):
         self.img = [[Fore.CYAN + 'X' + Fore.RESET]]
 
     def activate(self, **kwargs):
-        global powerup_activate_time
-
         kwargs['paddle'].expand()
         self.destroyed = True
-        powerup_activate_time = time.time()
 
 
 class ShrinkPaddle(PowerUp):
@@ -43,15 +41,16 @@ class ShrinkPaddle(PowerUp):
         self.img = [[Fore.RED + '~' + Fore.RESET]]
 
     def activate(self, **kwargs):
-        global powerup_activate_time
-
         kwargs['paddle'].shrink()
         self.destroyed = True
-        powerup_activate_time = time.time()
 
 
 class MultiBalls(PowerUp):
     '''Class for the multiballs powerup'''
+
+    def __init__(self, pos):
+        super().__init__(pos)
+        self.img = [[Fore.GREEN + '*' + Fore.RESET]]
 
     def double_balls(self, balls):
         from ball import Ball
@@ -59,13 +58,47 @@ class MultiBalls(PowerUp):
         for ball in balls:
             new_ball = Ball([ball.pos[0], ball.pos[1]], [-1, -1])
             new_ball.stuck = False
+            new_ball.go_through_bricks = ball.go_through_bricks
             new_balls.append(new_ball)
         balls += new_balls
 
-    def __init__(self, pos):
-        super().__init__(pos)
-        self.img = [[Fore.GREEN + '*' + Fore.RESET]]
-
     def activate(self, **kwargs):
         self.double_balls(kwargs['balls'])
+        self.destroyed = True
+
+
+class FastBall(PowerUp):
+    '''Class for the fast blls powerup'''
+
+    def __init__(self, pos):
+        super().__init__(pos)
+        self.img = [[Fore.MAGENTA + '>' + Fore.RESET]]
+
+    def activate(self, **kwargs):
+        globals.ball_move_interval = 0.07
+        self.destroyed = True
+
+
+class ThruBall(PowerUp):
+    '''Class for the thru blls powerup'''
+
+    def __init__(self, pos):
+        super().__init__(pos)
+        self.img = [[Fore.BLUE + '^' + Fore.RESET]]
+
+    def activate(self, **kwargs):
+        for ball in kwargs['balls']:
+            ball.go_through_bricks = True
+        self.destroyed = True
+
+
+class PaddleGrab(PowerUp):
+    '''Class for the paddle grab powerup'''
+
+    def __init__(self, pos):
+        super().__init__(pos)
+        self.img = [[Fore.GREEN + '#' + Fore.RESET]]
+
+    def activate(self, **kwargs):
+        kwargs['paddle'].grab = True
         self.destroyed = True

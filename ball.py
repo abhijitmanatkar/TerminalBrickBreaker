@@ -1,4 +1,5 @@
-from globals import WIDTH, HEIGHT, ball_move_interval
+import globals
+from globals import WIDTH, HEIGHT
 import time
 from colorama import Fore
 
@@ -11,6 +12,7 @@ class Ball():
         self.pos = pos
         self.vel = vel
         self.stuck = True
+        self.go_through_bricks = False
         self.last_move_time = time.time()
         self.destroyed = False
 
@@ -18,9 +20,9 @@ class Ball():
         # Used when ball is stuck
         self.pos[0] += delta_x
 
-    def move(self, delta_x=0):
+    def move(self):
         # Ball movement when free
-        if time.time() - self.last_move_time > ball_move_interval:
+        if time.time() - self.last_move_time > globals.ball_move_interval:
             if (self.pos[0] + self.vel[0] >= WIDTH - 1) or (self.pos[0] + self.vel[0] < 1):
                 self.vel[0] *= -1
             self.pos[0] += self.vel[0]
@@ -67,3 +69,20 @@ class Ball():
             else:
                 self.vel[1] *= -1
             self.move()
+
+    def stick_to(self, obj):
+        # Used when the paddle grab powerup is active
+        self.unmove()
+        center = obj.pos[0] + obj.length//2
+        right_center = center + obj.length//4
+        left_center = obj.length//4
+        if self.pos[0] < left_center:
+            self.vel[0] = max(self.vel[0] - 2, -2)
+        elif left_center <= self.pos[0] < center:
+            self.vel[0] = max(self.vel[0] - 1, -2)
+        elif center < self.pos[0] < right_center:
+            self.vel[0] = min(self.vel[0] + 1, 2)
+        elif right_center <= self.pos[0]:
+            self.vel[0] = min(self.vel[0] + 2, 2)
+        self.vel[1] *= -1
+        self.stuck = True
