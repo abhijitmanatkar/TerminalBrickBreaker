@@ -1,6 +1,7 @@
 import os
 import random
 import time
+import colorama
 from input import Get, input_to
 from ball import Ball
 from paddle import Paddle
@@ -14,6 +15,8 @@ getinp = Get()
 
 powerup_classes = [ExpandPaddle, ShrinkPaddle,
                    MultiBalls, FastBall, ThruBall, PaddleGrab]
+
+colorama.init()
 
 
 def game_loop():
