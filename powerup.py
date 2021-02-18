@@ -11,7 +11,9 @@ class PowerUp():
         self.pos = pos
         self.speed = 1
         self.last_move_time = time.time()
+        self.activated_time = time.time()
         self.destroyed = False
+        self.activated = False
 
     def move(self):
         if time.time() - self.last_move_time > powerup_move_interval:
@@ -30,6 +32,12 @@ class ExpandPaddle(PowerUp):
 
     def activate(self, **kwargs):
         kwargs['paddle'].expand()
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        kwargs['paddle'].shrink()
+        self.activated = False
         self.destroyed = True
 
 
@@ -42,6 +50,12 @@ class ShrinkPaddle(PowerUp):
 
     def activate(self, **kwargs):
         kwargs['paddle'].shrink()
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        kwargs['paddle'].expand()
+        self.activated = False
         self.destroyed = True
 
 
@@ -62,8 +76,18 @@ class MultiBalls(PowerUp):
             new_balls.append(new_ball)
         balls += new_balls
 
+    def remove_balls(self, balls):
+        while(len(balls) > 1):
+            balls.pop()
+
     def activate(self, **kwargs):
         self.double_balls(kwargs['balls'])
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        self.remove_balls(kwargs['balls'])
+        self.activated = False
         self.destroyed = True
 
 
@@ -75,7 +99,13 @@ class FastBall(PowerUp):
         self.img = [[Fore.MAGENTA + '>' + Fore.RESET]]
 
     def activate(self, **kwargs):
-        globals.ball_move_interval = 0.07
+        globals.ball_move_interval = 0.05
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        globals.ball_move_interval = 0.1
+        self.activated = False
         self.destroyed = True
 
 
@@ -89,6 +119,13 @@ class ThruBall(PowerUp):
     def activate(self, **kwargs):
         for ball in kwargs['balls']:
             ball.go_through_bricks = True
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        for ball in kwargs['balls']:
+            ball.go_through_bricks = False
+        self.activated = False
         self.destroyed = True
 
 
@@ -101,4 +138,10 @@ class PaddleGrab(PowerUp):
 
     def activate(self, **kwargs):
         kwargs['paddle'].grab = True
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        kwargs['paddle'].grab = False
+        self.activated = False
         self.destroyed = True

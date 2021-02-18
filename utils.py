@@ -1,10 +1,48 @@
 import os
 from brick import Brick
 from ball import Ball
+from colorama import Fore, Back
+from globals import WIDTH
 
 
 def clear():
     os.system('tput reset')
+
+
+def header(tm, score, lives):
+    '''Display time, score, lives'''
+    formatted_time = format_time(tm)
+    time_string = "Time: " + formatted_time
+    score_string = "Score: " + str(score)
+    lives_string = "Lives: " + str(lives)
+    empty_space_1 = " " * \
+        (WIDTH // 2 - len(time_string) - len(lives_string)//2)
+    empty_space_2 = " " * \
+        (WIDTH // 2 - len(score_string) - len(lives_string)//2)
+    empty_space_2 += " " * (WIDTH + 2 - len(time_string) - len(score_string) -
+                            len(lives_string) - len(empty_space_1) - len(empty_space_2))
+    score_string = Fore.BLACK + "Score: " + Fore.GREEN + str(score)
+    time_string = Fore.BLACK + "Time: " + Fore.BLUE + formatted_time
+    lives_string = Fore.BLACK + "Lives: " + Fore.RED + str(lives)
+    head = Back.WHITE + time_string + empty_space_1 + lives_string + \
+        empty_space_2 + score_string + Fore.RESET + Back.RESET
+    return head
+
+
+def format_time(tm):
+    tm = int(tm)
+    ret = ""
+    if tm // 60 > 0:
+        ret += str(tm // 60)
+    else:
+        ret += "0"
+    ret += ":"
+    if tm % 60 >= 10:
+        ret += str(tm % 60)
+    else:
+        ret += "0" + str(tm % 60)
+
+    return ret
 
 
 def gen_bricks():
@@ -20,6 +58,9 @@ def gen_bricks():
         [26, 11, 1], [33, 11, 1], [40, 11, 1], [
             5, 13, 4], [12, 13, 1], [19, 13, 1],
         [26, 13, 1], [33, 13, 1], [40, 13, 4]]
+
+    # bricks_pos2 = [[5, 13, 4], [12, 13, 1], [19, 13, 1],
+    #              [26, 13, 1], [33, 13, 1], [40, 13, 4]]
     #bricks_pos = [5, 12, 19, 26, 33, 40]
     bricks = []
     for brick in bricks_pos:

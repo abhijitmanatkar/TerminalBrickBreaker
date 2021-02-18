@@ -45,7 +45,7 @@ class Paddle():
         return False
 
     def expand(self):
-        self.length = min(self.length + 5, MAX_PADDLE_SIZE)
+        self.length = min(self.length + 2, MAX_PADDLE_SIZE)
         self.img = [[(Back.BLUE + ' ' + Back.RESET)
                      for _ in range(self.length)]]
 
