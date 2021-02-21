@@ -151,7 +151,7 @@ def game_loop():
             print(grid, end="")
             if not started:
                 print("Press R to release the ball and start the game")
-                print("Press W/A to move the paddle and Q to quit the game")
+                print("Press A/D to move the paddle and Q to quit the game")
 
             # Check if game over
             if len(bricks) <= 4:
