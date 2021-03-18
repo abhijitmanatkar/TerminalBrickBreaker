@@ -11,3 +11,5 @@ MIN_PADDLE_SIZE = 3
 
 ball_move_interval = 0.1
 powerup_move_interval = 0.2
+
+BRICK_FALL_DEADLINE = 30

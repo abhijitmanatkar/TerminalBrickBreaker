@@ -50,3 +50,7 @@ class Brick():
             return
         self.img = [[(self.get_color() + ' ' + Back.RESET)
                      for _ in range(self.length)]]
+
+    def fall(self):
+        # Move one step downwards
+        self.pos[1] += 1

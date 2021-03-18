@@ -8,7 +8,7 @@ from paddle import Paddle
 from grid import Grid
 from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab
 import globals
-from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY, POWERUP_ACTIVE_TIME
+from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY, POWERUP_ACTIVE_TIME, BRICK_FALL_DEADLINE
 from utils import clear, gen_bricks, format_time, header
 
 getinp = Get()
@@ -97,6 +97,18 @@ def game_loop(level):
                         ball.stick_to(paddle)
                     else:
                         ball.bounce_on(paddle)
+                    
+                    # Falling bricks
+                    if time.time() - start_time > BRICK_FALL_DEADLINE:
+                        for brick in bricks:
+                            brick.fall()
+                            if brick.pos[1] >= paddle.pos[1]:
+                                lives = 0
+                                break
+            
+            # Check if bricks have reached paddle
+            if lives == 0:
+                break
 
             # Collision of ball with bricks
             for ball in balls:
@@ -178,7 +190,7 @@ def game_loop(level):
 
     if not won:
         print("Game over. You lose :(")
-        print("Your level: " + str(level) + " Your score: " + str(score))
+        print("Your level: " + str(level) + "\nYour score: " + str(score))
         quit()
     elif level == 3:
         print("Game over. You Won!!")
