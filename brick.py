@@ -1,17 +1,20 @@
-from globals import WIDTH
+from globals import WIDTH, RAINBOW_BLINK_INTERVAL
 from colorama import Back
-
+import time
+import random
 
 class Brick():
     '''Class for the brick'''
 
     def __init__(self, pos, strength=1):
         self.length = 5
-        self.strength = strength
+        self.rainbow = (strength == 5)
+        self.strength = random.randint(1,4) if strength == 5 else strength
         self.img = [[(self.get_color() + ' ' + Back.RESET)
                      for _ in range(self.length)]]
         self.pos = pos
         self.destroyed = False
+        self.last_blink_time = time.time()
 
     def get_color(self):
         if self.strength == 1:
@@ -43,6 +46,8 @@ class Brick():
 
     def take_damage(self):
         # Called when ball collides with brick
+        if self.rainbow:
+            self.rainbow = False
         if self.strength < 4:
             self.strength -= 1
         if self.strength == 0:
@@ -54,3 +59,11 @@ class Brick():
     def fall(self):
         # Move one step downwards
         self.pos[1] += 1
+
+    def blink(self):
+        # Change color and strength if rainbow
+        if time.time() - self.last_blink_time > RAINBOW_BLINK_INTERVAL:
+            self.last_blink_time = time.time()
+            self.strength = ((self.strength) % 4 + 1)
+            self.img = [[(self.get_color() + ' ' + Back.RESET)
+                        for _ in range(self.length)]]

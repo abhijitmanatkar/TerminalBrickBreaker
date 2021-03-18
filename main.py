@@ -89,6 +89,10 @@ def game_loop(level):
             falling_powerups = [
                 powerup for powerup in falling_powerups if not powerup.destroyed]
 
+            for brick in bricks:
+                if brick.rainbow:
+                    brick.blink()
+
             # Check for collisions
             # Collision of balls with paddle
             for ball in balls:
