@@ -18,19 +18,24 @@ powerup_classes = [ExpandPaddle, ShrinkPaddle,
 
 colorama.init()
 
+score = 0
+brick_score = 0
+time_penalty = 0
+lives = 3
 
-def game_loop():
+def game_loop(level):
+    global score, brick_score, time_penalty, lives
+
     clear()
     grid = Grid()
 
-    bricks = gen_bricks()
+    bricks = gen_bricks(level)
 
     started = False
     start_time = time.time()
-    lives = 3
-
-    score = 0
-    brick_score = 0
+    
+    # Number of seconds since start, used for score calculation only
+    secs = 0
 
     won = False
 
@@ -53,6 +58,9 @@ def game_loop():
             if inp == 'q':
                 clear()
                 quit()
+            elif inp == 's':
+                # Skipping level
+                won = True
             elif inp in ['a', 'd']:
                 delta_x = paddle.move(inp)
                 for ball in balls:
@@ -137,8 +145,11 @@ def game_loop():
             tempGrid.draw(paddle)
 
             # Calculate score
-            time_penalty = 0.5 * int(time.time() - start_time)
-            score = brick_score - time_penalty
+            if started:
+                if int(time.time() - start_time) > secs:
+                    time_penalty += 0.5 #* int(time.time() - start_time)
+                secs = int(time.time() - start_time)
+                score = brick_score - time_penalty
 
             # Print
             grid = tempGrid
@@ -147,10 +158,12 @@ def game_loop():
                 print(header(time.time() - start_time, score, lives))
                 #print(format_time(time.time() - start_time))
             else:
-                print(header(0, 0, lives))
+                print(header(0, score, lives))
             print(grid, end="")
             if not started:
-                print("Press R to release the ball and start the game")
+                if level > 1:
+                    print("You have cleared level " + str(level - 1) + "!")
+                print("Press R to release the ball and start level " + str(level))
                 print("Press A/D to move the paddle and Q to quit the game")
 
             # Check if game over
@@ -160,15 +173,19 @@ def game_loop():
                     if brick.strength < 4:
                         won = False
                         break
-                if won:
-                    break
+            if won:
+                break
 
     if not won:
         print("Game over. You lose :(")
-    else:
-        print("You win!!")
-    print("Your score: " + str(score))
+        print("Your level: " + str(level) + " Your score: " + str(score))
+        quit()
+    elif level == 3:
+        print("Game over. You Won!!")
+        print("Your level: " + str(level) + "\nYour score: " + str(score))
 
 
 if __name__ == '__main__':
-    game_loop()
+    game_loop(1)
+    game_loop(2)
+    game_loop(3)
