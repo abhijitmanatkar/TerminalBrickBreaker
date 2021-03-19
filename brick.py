@@ -58,7 +58,14 @@ class Brick():
                 if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
                     return True
                 return False
-                
+        
+        elif type(obj).__name__ == 'Laser':
+            if obj.pos[1] != self.pos[1]:
+                return False
+            if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
+                return True
+            return False
+
         return False
 
     def take_damage(self):

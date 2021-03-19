@@ -9,8 +9,8 @@ def clear():
     os.system('tput reset')
 
 
-def header(tm, score, lives):
-    '''Display time, score, lives'''
+def header(tm, score, lives, level):
+    '''Display level, time, score, lives'''
     formatted_time = format_time(tm)
     time_string = "Time: " + formatted_time
     score_string = "Score: " + str(score)
@@ -24,8 +24,15 @@ def header(tm, score, lives):
     score_string = Fore.BLACK + "Score: " + Fore.GREEN + str(score)
     time_string = Fore.BLACK + "Time: " + Fore.BLUE + formatted_time
     lives_string = Fore.BLACK + "Lives: " + Fore.RED + str(lives)
+
+    level_string = "Level " + str(level)
+    empty_before_level = " " * (WIDTH//2 - len(level_string)//2)
+    empty_after_level = " " * (WIDTH + 2 - len(empty_before_level) - len(level_string))
+    head1 = Back.WHITE + empty_before_level + level_string + empty_after_level + Back.RESET + "\n"
+
     head = Back.WHITE + time_string + empty_space_1 + lives_string + \
         empty_space_2 + score_string + Fore.RESET + Back.RESET
+    head = head1 + head
     return head
 
 

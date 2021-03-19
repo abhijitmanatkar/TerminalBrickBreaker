@@ -171,3 +171,21 @@ class PaddleGrab(PowerUp):
         kwargs['paddle'].grab = False
         self.activated = False
         self.destroyed = True
+
+
+class ShootingPaddle(PowerUp):
+    '''Class for the shooting paddle powerup'''
+
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
+        self.img = [[Fore.RED + 'T' + Fore.RESET]]
+
+    def activate(self, **kwargs):
+        kwargs['paddle'].activate_shooting()
+        self.activated = True
+        self.activated_time = time.time()
+
+    def deactivate(self, **kwargs):
+        kwargs['paddle'].deactivate_shooting()
+        self.activated = False
+        self.destroyed = True

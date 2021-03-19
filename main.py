@@ -6,15 +6,14 @@ from input import Get, input_to
 from ball import Ball
 from paddle import Paddle
 from grid import Grid
-from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab
+from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab, ShootingPaddle
 import globals
 from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY, POWERUP_ACTIVE_TIME, BRICK_FALL_DEADLINE
 from utils import clear, gen_bricks, format_time, header
 
 getinp = Get()
 
-powerup_classes = [ExpandPaddle, ShrinkPaddle,
-                   MultiBalls, FastBall, ThruBall, PaddleGrab]
+powerup_classes = [ShootingPaddle] #, ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab]
 
 colorama.init()
 
@@ -46,6 +45,7 @@ def game_loop(level):
                                       paddle.length - 1), paddle.pos[1] - 1])]
         falling_powerups = []
         active_powerups = []
+        lasers = []
 
         globals.ball_move_interval = 0.1
 
@@ -74,6 +74,11 @@ def game_loop(level):
                     ball.stuck = False
             elif inp == 'p':
                 globals.ball_move_interval = 0.05
+            elif inp == 'x':
+                laser_pair = paddle.shoot()
+                if (laser_pair):
+                    lasers.append(laser_pair[0])
+                    lasers.append(laser_pair[1])
 
             # Updates
             for ball in balls:
@@ -92,6 +97,10 @@ def game_loop(level):
             for brick in bricks:
                 if brick.rainbow:
                     brick.blink()
+
+            for laser in lasers:
+                laser.move()
+            lasers = [laser for laser in lasers if not laser.destroyed]
 
             # Check for collisions
             # Collision of balls with paddle
@@ -141,6 +150,21 @@ def game_loop(level):
                 for i in range(len(bricks)):
                     if bricks[i].collides_with(powerup):
                         powerup.bounce_on(bricks[i])
+
+            # Collision of brick with laser
+            for laser in lasers:
+                for i in range(len(bricks)):
+                    if bricks[i].collides_with(laser):
+                        bricks[i].take_damage()
+                        laser.destroyed = True
+                        if bricks[i].destroyed:
+                            brick_score += 10
+                            # Generate powerup if destroyed
+                            if random.random() < POWERUP_PROBABILITY:
+                                falling_powerups.append(random.choice(
+                                    powerup_classes)(bricks[i].pos, [ball.vel[0], ball.vel[1]]))
+                bricks = [brick for brick in bricks if not brick.destroyed]
+            lasers = [laser for laser in lasers if not laser.destroyed]
                     
             # Collision of paddle with powerup
             for powerup in falling_powerups:
@@ -164,6 +188,8 @@ def game_loop(level):
                 tempGrid.draw(powerup)
             for ball in balls:
                 tempGrid.draw(ball)
+            for laser in lasers:
+                tempGrid.draw(laser)
             tempGrid.draw(paddle)
 
             # Calculate score
@@ -177,10 +203,10 @@ def game_loop(level):
             grid = tempGrid
             clear()
             if started:
-                print(header(time.time() - start_time, score, lives))
+                print(header(time.time() - start_time, score, lives, level))
                 #print(format_time(time.time() - start_time))
             else:
-                print(header(0, score, lives))
+                print(header(0, score, lives, level))
             print(grid, end="")
             if not started:
                 if level > 1:
