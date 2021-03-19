@@ -5,10 +5,11 @@ import colorama
 from input import Get, input_to
 from ball import Ball
 from paddle import Paddle
+from boss import Boss
 from grid import Grid
 from powerup import ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab, ShootingPaddle
 import globals
-from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY, POWERUP_ACTIVE_TIME, BRICK_FALL_DEADLINE
+from globals import WIDTH, HEIGHT, POWERUP_PROBABILITY, POWERUP_ACTIVE_TIME, BRICK_FALL_DEADLINE, BOMB_DROP_INTERVAL
 from utils import clear, gen_bricks, format_time, header
 
 getinp = Get()
@@ -38,6 +39,10 @@ def game_loop(level):
 
     won = False
 
+    boss = None
+    if level == 3:
+        boss = Boss([WIDTH//2, 1])
+
     while lives > 0 and not won:
 
         paddle = Paddle([WIDTH//2, HEIGHT - 4])
@@ -46,11 +51,15 @@ def game_loop(level):
         falling_powerups = []
         active_powerups = []
         lasers = []
+        bombs = []
 
         globals.ball_move_interval = 0.1
 
         # Time left for shooting powerup
         shoot_activate_time = 0
+
+        # Bomb drop time
+        last_bomb_time = time.time()
 
         while True:
             # Temporary grid for comparison
@@ -69,6 +78,8 @@ def game_loop(level):
                 for ball in balls:
                     if ball.stuck:
                         ball.drag(delta_x)
+                if boss != None:
+                    boss.move(inp)
             elif inp == 'r':
                 if not started:
                     started = True
@@ -105,6 +116,15 @@ def game_loop(level):
                 laser.move()
             lasers = [laser for laser in lasers if not laser.destroyed]
 
+            if time.time() - last_bomb_time > BOMB_DROP_INTERVAL:
+                last_bomb_time = time.time()
+                if boss:
+                    bomb = boss.drop_bomb()
+                    bombs.append(bomb)
+            for bomb in bombs:
+                bomb.move()
+            bombs = [bomb for bomb in bombs if not bomb.destroyed]
+            
             # Check for collisions
             # Collision of balls with paddle
             for ball in balls:
@@ -180,6 +200,29 @@ def game_loop(level):
                     falling_powerups = [
                         powerup for powerup in falling_powerups if not powerup.activated]
 
+            # Collision of paddle with bomb
+            bomb_hit = False
+            for bomb in bombs:
+                if paddle.collides_with(bomb):
+                    bomb_hit = True
+                    break
+            if bomb_hit:
+                lives -= 1
+                break
+
+            # Boss collision with ball
+            if boss:
+                for ball in balls:
+                    if boss.collides_with(ball):
+                        boss.take_damage()
+                        ball.bounce_on(boss)
+                        if boss.health == 3 or boss.health == 1:
+                            wall = boss.build_wall()
+                            bricks += wall
+
+                        if boss.destroyed:
+                            boss = None
+
             # Deactivating powerups
             if time.time() - shoot_activate_time > POWERUP_ACTIVE_TIME:
                 paddle.deactivate_shooting()
@@ -198,6 +241,10 @@ def game_loop(level):
                 tempGrid.draw(ball)
             for laser in lasers:
                 tempGrid.draw(laser)
+            if boss:
+                tempGrid.draw(boss)
+            for bomb in bombs:
+                tempGrid.draw(bomb)
             tempGrid.draw(paddle)
 
             # Calculate score
@@ -223,11 +270,12 @@ def game_loop(level):
                 print("Press A/D to move the paddle and Q to quit the game")
 
             # Check if game over
-            won = True
+            bricks_over = True
             for brick in bricks:
                 if brick.strength < 4:
-                    won = False
+                    bricks_over = False
                     break
+            if bricks_over: won = True
             if won:
                 break
 

@@ -70,6 +70,16 @@ class Ball():
                 self.vel[1] *= -1
             self.move()
 
+        elif type(obj).__name__ == 'Boss':
+            self.unmove()
+            # Sideways collision
+            if self.pos[0] < obj.pos[0] or self.pos[0] > obj.pos[0] + obj.length - 1:
+                self.vel[0] *= -1
+            # Top/Bottom collision
+            else:
+                self.vel[1] *= -1
+            self.move()
+
     def stick_to(self, obj):
         # Used when the paddle grab powerup is active
         self.unmove()
