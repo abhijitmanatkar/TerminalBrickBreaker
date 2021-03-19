@@ -49,6 +49,9 @@ def game_loop(level):
 
         globals.ball_move_interval = 0.1
 
+        # Time left for shooting powerup
+        shoot_activate_time = 0
+
         while True:
             # Temporary grid for comparison
             tempGrid = Grid()
@@ -170,11 +173,16 @@ def game_loop(level):
             for powerup in falling_powerups:
                 if paddle.collides_with(powerup):
                     powerup.activate(paddle=paddle, balls=balls)
-                    active_powerups.append(powerup)
+                    if type(powerup).__name__ == 'ShootingPaddle':
+                        shoot_activate_time = time.time()
+                    else:
+                        active_powerups.append(powerup)
                     falling_powerups = [
                         powerup for powerup in falling_powerups if not powerup.activated]
 
             # Deactivating powerups
+            if time.time() - shoot_activate_time > POWERUP_ACTIVE_TIME:
+                paddle.deactivate_shooting()
             for powerup in active_powerups:
                 if time.time() - powerup.activated_time >= POWERUP_ACTIVE_TIME:
                     powerup.deactivate(paddle=paddle, balls=balls)
@@ -203,10 +211,10 @@ def game_loop(level):
             grid = tempGrid
             clear()
             if started:
-                print(header(time.time() - start_time, score, lives, level))
+                print(header(time.time() - start_time, score, lives, level, time.time() - shoot_activate_time))
                 #print(format_time(time.time() - start_time))
             else:
-                print(header(0, score, lives, level))
+                print(header(0, score, lives, level, time.time() - shoot_activate_time))
             print(grid, end="")
             if not started:
                 if level > 1:
@@ -215,12 +223,11 @@ def game_loop(level):
                 print("Press A/D to move the paddle and Q to quit the game")
 
             # Check if game over
-            if len(bricks) <= 4:
-                won = True
-                for brick in bricks:
-                    if brick.strength < 4:
-                        won = False
-                        break
+            won = True
+            for brick in bricks:
+                if brick.strength < 4:
+                    won = False
+                    break
             if won:
                 break
 

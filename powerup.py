@@ -45,8 +45,9 @@ class PowerUp():
                 self.vel[0] *= -1
             # Top/Bottom collision
             else:
-                self.vel[1] *= -1
-            self.move()
+                if self.vel[1] < 0:
+                    self.vel[1] *= -1
+                    self.move()
 
 
 class ExpandPaddle(PowerUp):
