@@ -1,5 +1,5 @@
 import globals
-from globals import powerup_move_interval, HEIGHT
+from globals import powerup_move_interval, HEIGHT, WIDTH
 import time
 from colorama import Fore
 
@@ -7,9 +7,9 @@ from colorama import Fore
 class PowerUp():
     '''Base class for a powerup'''
 
-    def __init__(self, pos):
+    def __init__(self, pos, vel):
         self.pos = pos
-        self.speed = 1
+        self.vel = vel
         self.last_move_time = time.time()
         self.activated_time = time.time()
         self.destroyed = False
@@ -17,17 +17,43 @@ class PowerUp():
 
     def move(self):
         if time.time() - self.last_move_time > powerup_move_interval:
-            self.pos[1] += self.speed
-            self.last_move_time = time.time()
+            if (self.pos[0] + self.vel[0] >= WIDTH - 1) or (self.pos[0] + self.vel[0] < 1):
+                self.vel[0] *= -1
+            self.pos[0] += self.vel[0]
+
+            #self.vel[1] += 1    # gravity
+            if (self.pos[1] + self.vel[1] < 1):
+                self.vel[1] *= -1
             if self.pos[1] + 1 >= HEIGHT:
                 self.destroyed = True
+            self.pos[1] += self.vel[1]
+
+            self.last_move_time = time.time()
+    
+    def unmove(self):
+        # Move one step back. Used for collision handling with brick
+        self.pos[0] -= self.vel[0]
+        self.pos[1] -= self.vel[1]
+    
+    def bounce_on(self, obj):
+        # Change direction on collision with brick
+
+        if type(obj).__name__ == 'Brick':
+            self.unmove()
+            # Sideways collision
+            if self.pos[0] < obj.pos[0] or self.pos[0] > obj.pos[0] + obj.length - 1:
+                self.vel[0] *= -1
+            # Top/Bottom collision
+            else:
+                self.vel[1] *= -1
+            self.move()
 
 
 class ExpandPaddle(PowerUp):
     '''Class for the expand paddle powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.CYAN + 'X' + Fore.RESET]]
 
     def activate(self, **kwargs):
@@ -44,8 +70,8 @@ class ExpandPaddle(PowerUp):
 class ShrinkPaddle(PowerUp):
     '''Class for the shrink paddle powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.RED + '~' + Fore.RESET]]
 
     def activate(self, **kwargs):
@@ -62,8 +88,8 @@ class ShrinkPaddle(PowerUp):
 class MultiBalls(PowerUp):
     '''Class for the multiballs powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.GREEN + '*' + Fore.RESET]]
 
     def double_balls(self, balls):
@@ -94,8 +120,8 @@ class MultiBalls(PowerUp):
 class FastBall(PowerUp):
     '''Class for the fast blls powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.MAGENTA + '>' + Fore.RESET]]
 
     def activate(self, **kwargs):
@@ -112,8 +138,8 @@ class FastBall(PowerUp):
 class ThruBall(PowerUp):
     '''Class for the thru blls powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.BLUE + '^' + Fore.RESET]]
 
     def activate(self, **kwargs):
@@ -132,8 +158,8 @@ class ThruBall(PowerUp):
 class PaddleGrab(PowerUp):
     '''Class for the paddle grab powerup'''
 
-    def __init__(self, pos):
-        super().__init__(pos)
+    def __init__(self, pos, vel):
+        super().__init__(pos, vel)
         self.img = [[Fore.GREEN + '#' + Fore.RESET]]
 
     def activate(self, **kwargs):

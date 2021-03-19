@@ -42,6 +42,23 @@ class Brick():
                 if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
                     return True
                 return False
+
+        elif type(obj).__base__.__name__ == 'PowerUp':
+            if obj.pos[1] != self.pos[1]:
+                return False
+            if obj.vel[0] > 0:
+                if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1 + obj.vel[0]:
+                    return True
+                return False
+            elif obj.vel[0] < 0:
+                if self.pos[0] + obj.vel[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
+                    return True
+                return False
+            else:
+                if self.pos[0] <= obj.pos[0] <= self.pos[0] + self.length - 1:
+                    return True
+                return False
+                
         return False
 
     def take_damage(self):

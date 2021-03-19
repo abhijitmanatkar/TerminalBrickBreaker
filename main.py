@@ -133,9 +133,15 @@ def game_loop(level):
                             # Generate powerup if destroyed
                             if random.random() < POWERUP_PROBABILITY:
                                 falling_powerups.append(random.choice(
-                                    powerup_classes)(bricks[i].pos))
+                                    powerup_classes)(bricks[i].pos, [ball.vel[0], ball.vel[1]]))
                 bricks = [brick for brick in bricks if not brick.destroyed]
-
+            
+            # Collision of powerup with bricks
+            for powerup in falling_powerups:
+                for i in range(len(bricks)):
+                    if bricks[i].collides_with(powerup):
+                        powerup.bounce_on(bricks[i])
+                    
             # Collision of paddle with powerup
             for powerup in falling_powerups:
                 if paddle.collides_with(powerup):

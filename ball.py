@@ -36,7 +36,7 @@ class Ball():
             self.last_move_time = time.time()
 
     def unmove(self):
-        # Move one step back. Used for collision handling with paddle
+        # Move one step back. Used for collision handling with brick/paddle
         self.pos[0] -= self.vel[0]
         self.pos[1] -= self.vel[1]
 
