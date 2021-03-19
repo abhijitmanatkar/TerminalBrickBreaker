@@ -14,7 +14,7 @@ from utils import clear, gen_bricks, format_time, header
 
 getinp = Get()
 
-powerup_classes = [ShootingPaddle] #, ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab]
+powerup_classes = [ShootingPaddle, ExpandPaddle, ShrinkPaddle, MultiBalls, FastBall, ThruBall, PaddleGrab]
 
 colorama.init()
 
