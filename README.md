@@ -1,6 +1,6 @@
 # Terminal Brick Breaker
 
-<i>Made by Abhijit Mantkar (2019101108)</i>
+<i>Made by Abhijit Manatkar (2019101108)</i>
 
 ## Installation and running
 
